@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نور اليقين</title>
+    <style>
+        :root {
+            --primary-color: #1b5e20;
+            --accent-color: #81c784;
+            --bg-color: #f1f8e9;
+            --card-bg: #ffffff;
+            --text-color: #212121;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .location-text {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .times-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .time-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            border-right: 4px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .time-name { font-weight: bold; }
+        .time-val { font-family: monospace; font-size: 16px; color: var(--primary-color); }
+        .quran-section {
+            text-align: right;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .surah-select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .quran-text {
+            font-size: 20px;
+            line-height: 2;
+            word-spacing: 4px;
+            text-align: justify;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background-color: #2e7d32; }
+    </style>
+    <!-- Adhan system integration tag -->
+    <script>window.NATIVE_ADHAN=1</script>
+</head>
+<body>
+
+    <header>✨ نور اليقين ✨</header>
+
+    <div class="container">
+        <!-- مواقيت الصلاة -->
+        <div class="card">
+            <h3>🕋 مواقيت الصلاة الحالية</h3>
+            <div id="location" class="location-text">جاري تحديد الموقع تلقائياً عبر الـ GPS...</div>
+            <div class="times-grid" id="prayer-times">
+                <div class="time-item"><span class="time-name">الفجر</span><span class="time-val" id="fajr">--:--</span></div>
+                <div class="time-item"><span class="time-name">الظهر</span><span class="time-val" id="dhuhr">--:--</span></div>
+                <div class="time-item"><span class="time-name">العصر</span><span class="time-val" id="asr">--:--</span></div>
+                <div class="time-item"><span class="time-name">المغرب</span><span class="time-val" id="maghrib">--:--</span></div>
+                <div class="time-item"><span class="time-name">العشاء</span><span class="time-val" id="isha">--:--</span></div>
+            </div>
+        </div>
+
+        <!-- المصحف الشريف المكتوب -->
+        <div class="card">
+            <h3>📖 القراءة والمصحف الشريف</h3>
+            <select id="surahSelect" class="surah-select" onchange="loadSurah()">
+                <option value="1">الفاتحة</option>
+                <option value="112">الإخلاص</option>
+                <option value="113">الفلق</option>
+                <option value="114">الناس</option>
+            </select>
+            <div class="controls">
+                <button onclick="changeFontSize(1)">A+</button>
+                <button onclick="changeFontSize(-1)">A-</button>
+            </div>
+            <div class="quran-section">
+                <div id="quranText" class="quran-text">
+                    بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ (1) الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ (2) الرَّحْمَٰنِ الرَّحِيمِ (3) مَالِكِ يَوْمِ الدِّينِ (4) إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ (5) اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ (6) صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ (7)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSize = 20;
+        function changeFontSize(amount) {
+            currentSize += amount;
+            document.getElementById('quranText').style.fontSize = currentSize + 'px';
+        }
+
+        const surahs = {
+            1: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ (1) الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ (2) الرَّحْمَٰنِ الرَّحِيمِ (3) مَالِكِ يَوْمِ الدِّينِ (4) إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ (5) اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ (6) صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ (7)",
+            112: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ قُلْ هُوَ اللَّهُ أَحَدٌ (1) اللَّهُ الصَّمَدُ (2) لَمْ يَلِدْ وَلَمْ يُولَدْ (3) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (4)",
+            113: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (1) مِن شَرِّ مَا خَلَقَ (2) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبٌ (3) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (4) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدٌ (5)",
+            114: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ قُل * أَعُوذُ بِرَبِّ النَّاسِ (1) مَلِكِ النَّاسِ (2) إِلَٰهِ النَّاسِ (3) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (4) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (5) مِنَ الْجِنَّةِ وَالنَّاسِ (6)"
+        };
+
+        function loadSurah() {
+            const id = document.getElementById('surahSelect').value;
+            document.getElementById('quranText').innerText = surahs[id] || "النص غير متوفر في هذه النسخة التجريبية";
+        }
+
+        // حساب وإحضار المواقيت التلقائي من خادم موثوق يعتمد على الإحداثيات الممررة من الجي بي إس الهاتفي
+        function fetchPrayerTimes(lat, lon) {
+            document.getElementById('location').innerText = `الموقع الحالي: خط عرض ${lat.toFixed(2)}، خط طول ${lon.toFixed(2)}`;
+            
+            // استخدام رابط المعهد الإسلامي Aladhan API لجلب المواقيت التلقائية حسب الإحداثيات الفعلية والمنطقة الزمنية للهاتف
+            fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=3`)
+            .then(res => res.json())
+            .then(data => {
+                if(data && data.data) {
+                    const timings = data.data.timings;
+                    document.getElementById('fajr').innerText = timings.Fajr;
+                    document.getElementById('dhuhr').innerText = timings.Dhuhr;
+                    document.getElementById('asr').innerText = timings.Asr;
+                    document.getElementById('maghrib').innerText = timings.Maghrib;
+                    document.getElementById('isha').innerText = timings.Isha;
+
+                    // إرسال المواعيد الدقيقة إلى نظام كاباسيتور الأصلي لحفظ الجدولة العميقة للأذان بالخلفية
+                    if(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+                        scheduleNativeAdhan(timings);
+                    }
+                }
+            }).catch(err => {
+                document.getElementById('location').innerText = "خطأ أثناء تحديث المواقيت، سيتم استخدام التوقيت التقريبي الاحتياطي.";
+            });
+        }
+
+        function scheduleNativeAdhan(timings) {
+            // كود التفاعل المباشر مع نظام الإشعارات لربطه بقناة الأذان المنشأة بالخلفية adhan_channel
+            const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+            let notifications = [];
+            
+            prayers.forEach((prayer, index) => {
+                if(timings[prayer]) {
+                    const [hour, minute] = timings[prayer].split(':');
+                    let triggerDate = new Date();
+                    triggerDate.setHours(parseInt(hour), parseInt(minute), 0, 0);
+                    
+                    if(triggerDate > new Date()) {
+                        notifications.push({
+                            title: "حان الآن وقت الصلاة",
+                            body: `نداء الصلاة لـ ${prayer}`,
+                            id: index + 100,
+                            schedule: { at: triggerDate, allowWhileIdle: true },
+                            sound: "adhan.mp3",
+                            channelId: "adhan_channel",
+                            smallIcon: "res://ic_stat_name"
+                        });
+                    }
+                }
+            });
+
+            if(notifications.length > 0) {
+                window.Capacitor.Plugins.LocalNotifications.schedule({ notifications });
+            }
+        }
+
+        // تفعيل تتبع الموقع المباشر
+        window.addEventListener('DOMContentLoaded', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        fetchPrayerTimes(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        document.getElementById('location').innerText = "يرجى تفعيل صلاحية الـ GPS في الهاتف لتحديث المواقيت تلقائياً.";
+                        // إحداثيات افتراضية (مكة المكرمة كاحتياط)
+                        fetchPrayerTimes(21.42, 39.82);
+                    }
+                );
+            }
+        });
+    </script>
+</body>
+</html>
